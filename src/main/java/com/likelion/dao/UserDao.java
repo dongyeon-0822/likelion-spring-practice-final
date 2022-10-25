@@ -48,6 +48,29 @@ public class UserDao {
         System.out.println("SELECT 성공");
         return user;
     }
+    public void deleteAll() throws SQLException, ClassNotFoundException {
+        Connection conn = cm.makeConnection();
+
+        String deleteQuery = "DELETE from user;";
+        PreparedStatement ps = conn.prepareStatement(deleteQuery);
+        ps.executeUpdate(); // delete 는 테이블에 영향을 주기 때문에 Update
+        ps.close();
+        conn.close();
+        System.out.println("DELETE All 성공");
+    }
+    public int getCount() throws SQLException, ClassNotFoundException {
+        int count = 0;
+        Connection conn = cm.makeConnection();
+        PreparedStatement ps = conn.prepareStatement("SELECT count(*) from user;");
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        count = rs.getInt(1);
+
+        rs.close();
+        ps.close();
+        conn.close();
+        return count;
+    }
 
 //    public void delete(String id) throws SQLException, ClassNotFoundException {
 //        Connection conn = cm.makeConnection();
@@ -61,16 +84,7 @@ public class UserDao {
 //        conn.close();
 //        System.out.println("DELETE 성공");
 //    }
-//    public void deleteAll() throws SQLException, ClassNotFoundException {
-//        Connection conn = cm.makeConnection();
-//
-//        String deleteQuery = "DELETE from user;";
-//        PreparedStatement ps = conn.prepareStatement(deleteQuery);
-//        ps.executeUpdate(); // delete 는 테이블에 영향을 주기 때문에 Update
-//        ps.close();
-//        conn.close();
-//        System.out.println("DELETE All 성공");
-//    }
+
 //    public List<User> selectAll() throws SQLException, ClassNotFoundException {
 //        Connection conn = cm.makeConnection();
 //
