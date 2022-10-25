@@ -37,10 +37,10 @@ public class UserDao {
         this.jdbcTemplate.update("Delete from user");
     }
     public int getCount()  {
-        return this.jdbcTemplate.queryForObject("select count(*) from users;", Integer.class);
+        return this.jdbcTemplate.queryForObject("select count(*) from user;", Integer.class);
     }
     public List<User> selectAll() throws SQLException {
-        return this.jdbcTemplate.query("select * from order by id", rowMapper);
+        return this.jdbcTemplate.query("select * from user order by id", rowMapper);
     }
 //    public void delete(String id) throws SQLException, ClassNotFoundException {
 //        Connection conn = cm.makeConnection();
