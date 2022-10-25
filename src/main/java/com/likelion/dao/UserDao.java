@@ -4,8 +4,6 @@ import com.likelion.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserDao {
     private final DataSource dataSource;
@@ -23,31 +21,35 @@ public class UserDao {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }finally {
+        } finally {
             if (ps != null) {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
             }
             if (conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
     }
-    public void insert(User user) throws SQLException, ClassNotFoundException {
-        AddStrategy addStrategy = new AddStrategy(user);
-        jdbcContextWithStatementStrategy(addStrategy);
+    public void insert(User user) {
+        jdbcContextWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                PreparedStatement ps = c.prepareStatement("INSERT INTO user VALUES (?,?,?);");
+                ps.setString(1, user.getId());
+                ps.setString(2,user.getName());
+                ps.setString(2,user.getPassword());
+                return ps;
+            }
+        });
         System.out.println("INSERT 성공");
     }
-    public User select(String id) throws SQLException, ClassNotFoundException {
+    public User select(String id) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -64,35 +66,34 @@ public class UserDao {
             return user;
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         } finally {
             if (rs != null) {
                 try {
                     rs.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
             }
             if (ps != null) {
                 try {
                     ps.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
             }
             if (conn != null) {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
     }
-    public void deleteAll() throws SQLException, ClassNotFoundException {
-        DeleteStategy deleteStategy = new DeleteStategy();
-        jdbcContextWithStatementStrategy(deleteStategy);
+    public void deleteAll() {
+        jdbcContextWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                return c.prepareStatement("DELETE from user;");
+            }
+        });
         System.out.println("DELETE ALL 성공");
     }
     public int getCount() throws SQLException, ClassNotFoundException {
@@ -101,7 +102,6 @@ public class UserDao {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            count = 0;
             conn = dataSource.getConnection();
             ps = conn.prepareStatement("SELECT count(*) from user;");
             rs = ps.executeQuery();
@@ -109,8 +109,6 @@ public class UserDao {
             count = rs.getInt(1);
             return count;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
             if (rs != null) {
