@@ -2,26 +2,23 @@ package com.likelion.dao;
 
 import com.likelion.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-    private ConnectionMaker cm;
+    private final DataSource dataSource;
 
-    public UserDao() {
-        this.cm = new LocalConnectionMaker();
-    }
-
-    public UserDao(ConnectionMaker cm) {
-        this.cm = cm;
+    public UserDao(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void jdbcContextWithStatementStrategy(StatementStrategy stmt) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
-            conn = cm.makeConnection();
+            conn = dataSource.getConnection();
             ps = stmt.makePreparedStatement(conn);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -56,7 +53,7 @@ public class UserDao {
         ResultSet rs = null;
         User user = null;
         try {
-            conn = cm.makeConnection();
+            conn = dataSource.getConnection();
 
             String selectQuery = "SELECT * from user WHERE id=?;";
             ps = conn.prepareStatement(selectQuery);
@@ -105,7 +102,7 @@ public class UserDao {
         ResultSet rs = null;
         try {
             count = 0;
-            conn = cm.makeConnection();
+            conn = dataSource.getConnection();
             ps = conn.prepareStatement("SELECT count(*) from user;");
             rs = ps.executeQuery();
             rs.next();
