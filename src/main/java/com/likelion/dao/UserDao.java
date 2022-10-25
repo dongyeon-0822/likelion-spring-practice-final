@@ -4,6 +4,8 @@ import com.likelion.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDao {
     private final DataSource dataSource;
@@ -66,15 +68,10 @@ public class UserDao {
         }
     }
     public void deleteAll() {
-        jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                return c.prepareStatement("DELETE from user;");
-            }
-        });
+        this.jdbcContext.executeSql("DELETE from user;");
         System.out.println("DELETE ALL 성공");
     }
-    public int getCount() throws SQLException, ClassNotFoundException {
+    public int getCount()  {
         int count = 0;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -112,7 +109,28 @@ public class UserDao {
             }
         }
     }
+    public List<User> selectAll() throws SQLException {
+        Connection conn = dataSource.getConnection();
 
+        String selectQuery = "SELECT * from user WHERE;";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(selectQuery);
+
+        ArrayList<User> userList = new ArrayList<User>();
+
+        while(rs.next()) {
+            User user = new User();
+            user.setId(rs.getString(1));
+            user.setName(rs.getString(2));
+            user.setPassword(rs.getString(3));
+            userList.add(user);
+        }
+        rs.close();
+        stmt.close();
+        conn.close();
+        System.out.println("SELECT All 성공");
+        return userList;
+    }
 //    public void delete(String id) throws SQLException, ClassNotFoundException {
 //        Connection conn = cm.makeConnection();
 //
@@ -126,26 +144,5 @@ public class UserDao {
 //        System.out.println("DELETE 성공");
 //    }
 
-//    public List<User> selectAll() throws SQLException, ClassNotFoundException {
-//        Connection conn = cm.makeConnection();
-//
-//        String selectQuery = "SELECT * from user WHERE;";
-//        Statement stmt = conn.createStatement();
-//        ResultSet rs = stmt.executeQuery(selectQuery);
-//
-//        ArrayList<User> userList = new ArrayList<User>();
-//
-//        while(rs.next()) {
-//            User user = new User();
-//            user.setId(rs.getString(1));
-//            user.setName(rs.getString(2));
-//            user.setPassword(rs.getString(3));
-//            userList.add(user);
-//        }
-//        rs.close();
-//        stmt.close();
-//        conn.close();
-//        System.out.println("SELECT All 성공");
-//        return userList;
-//    }
+
 }
