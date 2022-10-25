@@ -55,7 +55,7 @@ class UserDaoTest {
 
     @Test
     void selectExceptionTest() {
-        assertThrows(SQLException.class, ()->{
+        assertThrows(RuntimeException.class, ()->{
             userDao.select("30");
         });
     }
